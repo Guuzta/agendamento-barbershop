@@ -6,6 +6,7 @@ dotenv.config();
 const PORT = process.env.PORT;
 
 import healthRoutes from "./routes/healthRoutes";
+import userRoutes from "./routes/userRoutes";
 
 class App {
   app = express();
@@ -24,6 +25,7 @@ class App {
 
   routes(): void {
     this.app.use("/", healthRoutes);
+    this.app.use("/users", userRoutes);
   }
 }
 
