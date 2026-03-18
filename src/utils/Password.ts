@@ -8,6 +8,12 @@ class Password {
 
     return hashedPassword;
   }
+
+  async compare(password: string, userPassword: string): Promise<boolean> {
+    const isPasswordValid = await bcrypt.compare(password, userPassword);
+
+    return isPasswordValid;
+  }
 }
 
 const password = new Password();
