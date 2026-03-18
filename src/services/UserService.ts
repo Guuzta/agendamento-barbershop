@@ -1,6 +1,8 @@
 import { UserResponse } from "../types/user";
 import { prisma } from "../lib/prisma";
+
 import AppError from "../utils/AppError";
+import passwordHasher from "../utils/Password";
 
 class UserService {
   async register(
@@ -14,8 +16,10 @@ class UserService {
       throw new AppError("Unable to register the user", 400);
     }
 
+    const hashedPassword = await passwordHasher.hash(password);
+
     await prisma.user.create({
-      data: { name, email, password },
+      data: { name, email, password: hashedPassword },
     });
 
     return {
