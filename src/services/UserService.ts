@@ -1,4 +1,4 @@
-import { UserResponse } from "../types/user";
+import { RegisterResponse, LoginResponse } from "../types/user";
 import { prisma } from "../lib/prisma";
 
 import AppError from "../utils/AppError";
@@ -9,7 +9,7 @@ class UserService {
     name: string,
     email: string,
     password: string,
-  ): Promise<UserResponse> {
+  ): Promise<RegisterResponse> {
     const userExists = await prisma.user.findUnique({ where: { email } });
 
     if (userExists) {
@@ -25,6 +25,27 @@ class UserService {
     return {
       name,
       email,
+    };
+  }
+
+  async login(email: string, password: string): Promise<LoginResponse> {
+    const user = await prisma.user.findUnique({ where: { email } });
+
+    if (!user) {
+      throw new AppError("Invalid email or password", 401);
+    }
+
+    const isPasswordValid = await passwordHasher.compare(
+      password,
+      user.password,
+    );
+
+    if (!isPasswordValid) {
+      throw new AppError("Invalid email or password", 401);
+    }
+
+    return {
+      message: "Login successful",
     };
   }
 }

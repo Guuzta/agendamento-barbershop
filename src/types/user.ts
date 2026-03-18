@@ -4,7 +4,16 @@ export interface RegisterUserBody {
   password: string;
 }
 
-export interface UserResponse {
+export interface RegisterResponse {
   name: string;
   email: string;
+}
+
+export interface LoginUserBody {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  message: string;
 }
