@@ -11,4 +11,11 @@ model User {
   name  String
   email String  @unique
   password String
-} 
+}
+ 
+
+model Barber { 
+  id    Int     @id @default(autoincrement()) 
+  name  String
+  createdAt DateTime  @default(now())
+}
