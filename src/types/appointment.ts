@@ -6,6 +6,12 @@ export interface Appointment {
   createdAt: Date;
 }
 
+export interface AppointmentBody {
+  userId: number;
+  barberId: number;
+  date: string;
+}
+
 export interface GetAppointmentParams {
   id: string;
 }

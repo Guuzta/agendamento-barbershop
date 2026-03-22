@@ -1,4 +1,5 @@
-import { RegisterResponse, LoginResponse } from "../types/user";
+import { RegisterResponse } from "../types/user";
+import { GenericMessage } from "../types/types";
 import { prisma } from "../lib/prisma";
 
 import AppError from "../utils/AppError";
@@ -28,7 +29,7 @@ class UserService {
     };
   }
 
-  async login(email: string, password: string): Promise<LoginResponse> {
+  async login(email: string, password: string): Promise<GenericMessage> {
     const user = await prisma.user.findUnique({ where: { email } });
 
     if (!user) {
