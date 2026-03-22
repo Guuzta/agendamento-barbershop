@@ -8,6 +8,7 @@ const PORT = process.env.PORT;
 import healthRoutes from "./routes/healthRoutes";
 import userRoutes from "./routes/userRoutes";
 import barberRoutes from "./routes/barberRoutes";
+import appointmentRoutes from "./routes/appointmentRoutes";
 
 import errorHandler from "./middlewares/errorHandler";
 
@@ -31,6 +32,7 @@ class App {
     this.app.use("/", healthRoutes);
     this.app.use("/users", userRoutes);
     this.app.use("/barbers", barberRoutes);
+    this.app.use("/appointments", appointmentRoutes);
   }
 
   errorHandler(): void {

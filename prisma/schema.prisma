@@ -6,16 +6,28 @@ datasource db {
   provider = "postgresql"
 }
 
-model User { 
-  id    Int     @id @default(autoincrement()) 
-  name  String
-  email String  @unique
-  password String
+model User {
+  id           Int           @id @default(autoincrement())
+  name         String
+  email        String        @unique
+  password     String
+  appointments Appointment[]
 }
- 
 
-model Barber { 
-  id    Int     @id @default(autoincrement()) 
-  name  String
-  createdAt DateTime  @default(now())
+model Barber {
+  id           Int           @id @default(autoincrement())
+  name         String
+  createdAt    DateTime      @default(now())
+  appointments Appointment[]
+}
+
+model Appointment {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  barberId  Int
+  date      DateTime
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  barber Barber @relation(fields: [barberId], references: [id])
 }

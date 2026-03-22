@@ -1,6 +1,6 @@
 import { prisma } from "../lib/prisma";
 
-import { BarberId, ListBarbersResponse } from "../types/barber";
+import { Barber, BarberId, ListBarbersResponse } from "../types/barber";
 import AppError from "../utils/AppError";
 
 class BarberService {
@@ -15,7 +15,7 @@ class BarberService {
     return { barbers };
   }
 
-  async getBarberById(id: BarberId) {
+  async getBarberById(id: BarberId): Promise<Barber> {
     const barber = await prisma.barber.findUnique({
       where: id,
       select: {
