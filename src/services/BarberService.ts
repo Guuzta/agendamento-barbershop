@@ -1,6 +1,8 @@
 import { prisma } from "../lib/prisma";
+import { startOfDay, endOfDay, isAfter, parseISO, addHours } from "date-fns";
 
 import { Barber, BarberId, ListBarbersResponse } from "../types/barber";
+
 import AppError from "../utils/AppError";
 
 class BarberService {
@@ -29,6 +31,46 @@ class BarberService {
     }
 
     return barber;
+  }
+
+  async getBarberAvailability(
+    barberId: BarberId,
+    dateString: string,
+  ): Promise<string[]> {
+    const date = parseISO(dateString);
+    const startDay = startOfDay(date);
+    const endDay = endOfDay(date);
+
+    const { id } = barberId;
+
+    const appointments = await prisma.appointment.findMany({
+      where: {
+        barberId: id,
+        date: {
+          gte: startDay,
+          lte: endDay,
+        },
+      },
+      select: {
+        date: true,
+      },
+    });
+
+    const bookedHours = new Set(
+      appointments.map((appointment) => appointment.date.getUTCHours()),
+    );
+
+    const hours = [];
+
+    for (let hour = 9; hour <= 17; hour++) {
+      const slot = addHours(startDay, hour);
+
+      if (!bookedHours.has(hour) && isAfter(slot, new Date())) {
+        hours.push(`${hour.toString().padStart(2, "0")}:00`);
+      }
+    }
+
+    return hours;
   }
 }
 

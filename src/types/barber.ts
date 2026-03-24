@@ -11,6 +11,10 @@ export interface GetBarberParams {
   id: string;
 }
 
+export interface GetBarberQuery {
+  date: string;
+}
+
 export interface BarberId {
   id: number;
 }

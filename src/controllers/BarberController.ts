@@ -5,9 +5,12 @@ import {
   GetBarberParams,
   ListBarbersResponse,
   BarberId,
+  GetBarberQuery,
 } from "../types/barber";
 
 import barberService from "../services/BarberService";
+
+import AppError from "../utils/AppError";
 
 class BarberController {
   async listAll(
@@ -37,6 +40,33 @@ class BarberController {
       const barber = await barberService.getBarberById(id);
 
       res.status(200).json(barber);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getBarberAvailability(
+    req: Request<GetBarberParams, {}, {}, GetBarberQuery>,
+    res: Response<string[]>,
+    next: NextFunction,
+  ) {
+    try {
+      const barberId: BarberId = {
+        id: Number(req.params.id),
+      };
+
+      const { date } = req.query;
+
+      if (!date || typeof date !== "string") {
+        throw new AppError("Date is required", 400);
+      }
+
+      const availableHours = await barberService.getBarberAvailability(
+        barberId,
+        date,
+      );
+
+      res.status(200).json(availableHours);
     } catch (error) {
       next(error);
     }
