@@ -5,6 +5,8 @@ dotenv.config();
 
 const PORT = process.env.PORT;
 
+import "./config/env";
+
 import healthRoutes from "./routes/healthRoutes";
 import userRoutes from "./routes/userRoutes";
 import barberRoutes from "./routes/barberRoutes";

@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 
 import {
-  LoginResponse,
   LoginUserBody,
   RegisterUserBody,
   RegisterResponse,
+  AccessToken,
 } from "../types/user";
 
 import userService from "../services/UserService";
@@ -28,15 +28,15 @@ class UserController {
 
   async login(
     req: Request<{}, {}, LoginUserBody>,
-    res: Response<LoginResponse>,
+    res: Response<AccessToken>,
     next: NextFunction,
   ) {
     try {
       const { email, password } = req.body;
 
-      const message = await userService.login(email, password);
+      const token = await userService.login(email, password);
 
-      res.status(200).json(message);
+      res.status(200).json(token);
     } catch (error) {
       next(error);
     }

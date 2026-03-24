@@ -1,9 +1,9 @@
-import { RegisterResponse } from "../types/user";
-import { GenericMessage } from "../types/types";
+import { RegisterResponse, AccessToken } from "../types/user";
 import { prisma } from "../lib/prisma";
 
 import AppError from "../utils/AppError";
 import passwordHasher from "../utils/Password";
+import token from "../utils/Token";
 
 class UserService {
   async register(
@@ -29,7 +29,7 @@ class UserService {
     };
   }
 
-  async login(email: string, password: string): Promise<GenericMessage> {
+  async login(email: string, password: string): Promise<AccessToken> {
     const user = await prisma.user.findUnique({ where: { email } });
 
     if (!user) {
@@ -45,8 +45,14 @@ class UserService {
       throw new AppError("Invalid email or password", 401);
     }
 
+    const accessToken = token.generateAccessToken(
+      user.id,
+      user.name,
+      user.email,
+    );
+
     return {
-      message: "Login successful",
+      accessToken,
     };
   }
 }
