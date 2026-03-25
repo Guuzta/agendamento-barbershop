@@ -1,9 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 
-import { Appointment, AppointmentBody } from "../types/appointment";
+import {
+  Appointment,
+  AppointmentBody,
+  GetAppointmentParams,
+} from "../types/appointment";
+import { GenericMessage } from "../types/types";
 
 import appointmentService from "../services/AppointmentService";
-import { GenericMessage } from "../types/types";
 
 import AppError from "../utils/AppError";
 
@@ -43,6 +47,31 @@ class AppointmentController {
         await appointmentService.createNewAppointment(newAppointment);
 
       res.status(201).json(message);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getUserAppointment(
+    req: Request<GetAppointmentParams>,
+    res: Response<Appointment>,
+    next: NextFunction,
+  ) {
+    if (!req.userId) {
+      throw new AppError("Unauthorized", 401);
+    }
+
+    try {
+      const { userId } = req;
+
+      const appointmentId = Number(req.params.id);
+
+      const appointment = await appointmentService.getUserAppointment(
+        userId,
+        appointmentId,
+      );
+
+      res.status(200).json(appointment);
     } catch (error) {
       next(error);
     }

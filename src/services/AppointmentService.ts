@@ -65,6 +65,28 @@ class AppointmentService {
       message: "Appointment created successfully",
     };
   }
+
+  async getUserAppointment(
+    userId: number,
+    appointmentId: number,
+  ): Promise<Appointment> {
+    const appointment = await prisma.appointment.findUnique({
+      where: { id: appointmentId },
+    });
+
+    if (!appointment) {
+      throw new AppError("Appointment not found", 404);
+    }
+
+    if (userId !== appointment.userId) {
+      throw new AppError(
+        "You are not authorized to access the appointment",
+        403,
+      );
+    }
+
+    return appointment;
+  }
 }
 
 export default new AppointmentService();
