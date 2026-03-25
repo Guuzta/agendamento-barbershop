@@ -1,24 +1,24 @@
 import { Request, Response, NextFunction } from "express";
 
-import {
-  Appointment,
-  AppointmentBody,
-  GetAppointmentParams,
-} from "../types/appointment";
+import { Appointment, AppointmentBody } from "../types/appointment";
 
 import appointmentService from "../services/AppointmentService";
 import { GenericMessage } from "../types/types";
 
+import AppError from "../utils/AppError";
+
 class AppointmentController {
   async listUserAppointments(
-    req: Request<GetAppointmentParams>,
+    req: Request,
     res: Response<Appointment[]>,
     next: NextFunction,
   ) {
+    if (!req.userId) {
+      throw new AppError("Unauthorized", 401);
+    }
+
     try {
-      const userId = {
-        userId: Number(req.params.id),
-      };
+      const { userId } = req;
 
       const appointments =
         await appointmentService.listUserAppointments(userId);

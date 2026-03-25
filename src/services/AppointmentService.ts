@@ -1,19 +1,28 @@
 import { prisma } from "../lib/prisma";
 
-import { UserId, Appointment, AppointmentBody } from "../types/appointment";
+import { Appointment, AppointmentBody } from "../types/appointment";
 import { GenericMessage } from "../types/types";
 
 import AppError from "../utils/AppError";
 
 class AppointmentService {
-  async listUserAppointments(userId: UserId): Promise<Appointment[]> {
-    const user = await prisma.user.findUnique({ where: { id: userId.userId } });
+  async listUserAppointments(userId: number): Promise<Appointment[]> {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
 
     if (!user) {
       throw new AppError("User not found", 404);
     }
 
-    const appointments = await prisma.appointment.findMany({ where: userId });
+    if (user.id !== userId) {
+      throw new AppError(
+        "You are not authorized to access the appointments",
+        403,
+      );
+    }
+
+    const appointments = await prisma.appointment.findMany({
+      where: { userId },
+    });
 
     return appointments;
   }
