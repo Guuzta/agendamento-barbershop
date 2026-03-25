@@ -6,6 +6,7 @@ import {
   GetAppointmentParams,
 } from "../types/appointment";
 import { GenericMessage } from "../types/types";
+import { AuthenticatedRequest } from "../types/jwt";
 
 import appointmentService from "../services/AppointmentService";
 
@@ -13,7 +14,7 @@ import AppError from "../utils/AppError";
 
 class AppointmentController {
   async listUserAppointments(
-    req: Request,
+    req: AuthenticatedRequest,
     res: Response<Appointment[]>,
     next: NextFunction,
   ) {
@@ -53,7 +54,7 @@ class AppointmentController {
   }
 
   async getUserAppointment(
-    req: Request<GetAppointmentParams>,
+    req: AuthenticatedRequest<GetAppointmentParams>,
     res: Response<Appointment>,
     next: NextFunction,
   ) {

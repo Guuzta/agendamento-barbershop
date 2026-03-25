@@ -1,11 +1,16 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
 import { JwtPayloadCustom } from "../types/jwt";
+import { AuthenticatedRequest } from "../types/jwt";
 import AppError from "../utils/AppError";
 import { env } from "../config/env";
 
-const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
+const requireAuth = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction,
+) => {
   const { authorization } = req.headers;
 
   if (!authorization) {
