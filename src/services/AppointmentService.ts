@@ -13,13 +13,6 @@ class AppointmentService {
       throw new AppError("User not found", 404);
     }
 
-    if (user.id !== userId) {
-      throw new AppError(
-        "You are not authorized to access the appointments",
-        403,
-      );
-    }
-
     const appointments = await prisma.appointment.findMany({
       where: { userId },
     });
