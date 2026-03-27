@@ -87,6 +87,52 @@ class AppointmentService {
 
     return appointment;
   }
+
+  async cancelAppointment(
+    userId: number,
+    appointmentId: number,
+  ): Promise<GenericMessage> {
+    const appointment = await prisma.appointment.findUnique({
+      where: { id: appointmentId },
+    });
+
+    if (!appointment) {
+      throw new AppError("Appointment not found", 404);
+    }
+
+    if (userId !== appointment.userId) {
+      throw new AppError(
+        "You are not authorized to access the appointment",
+        403,
+      );
+    }
+
+    const now = new Date();
+
+    if (appointment.date < now) {
+      throw new AppError("You cannot cancel a past appointment", 400);
+    }
+
+    const diffMs = appointment.date.getTime() - now.getTime();
+    const diffHours = diffMs / (1000 * 60 * 60);
+
+    if (diffHours < 2) {
+      throw new AppError("You can only cancel at least 2 hours in advance");
+    }
+
+    if (appointment.status !== "scheduled") {
+      throw new AppError("Only scheduled appointments can be canceled", 400);
+    }
+
+    await prisma.appointment.update({
+      where: { id: appointmentId },
+      data: { status: "canceled" },
+    });
+
+    return {
+      message: "Appointment canceled successfully",
+    };
+  }
 }
 
 export default new AppointmentService();

@@ -77,6 +77,31 @@ class AppointmentController {
       next(error);
     }
   }
+
+  async cancelAppointment(
+    req: AuthenticatedRequest<GetAppointmentParams>,
+    res: Response<GenericMessage>,
+    next: NextFunction,
+  ) {
+    if (!req.userId) {
+      throw new AppError("Unauthorized", 401);
+    }
+
+    try {
+      const { userId } = req;
+
+      const appointmentId = Number(req.params.id);
+
+      const message = await appointmentService.cancelAppointment(
+        userId,
+        appointmentId,
+      );
+
+      res.status(200).json(message);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default new AppointmentController();

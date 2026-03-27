@@ -21,12 +21,19 @@ model Barber {
   appointments Appointment[]
 }
 
+enum AppointmentStatus {
+  scheduled
+  canceled
+  completed
+}
+
 model Appointment {
-  id        Int      @id @default(autoincrement())
+  id        Int               @id @default(autoincrement())
   userId    Int
   barberId  Int
   date      DateTime
-  createdAt DateTime @default(now())
+  status    AppointmentStatus @default(scheduled)
+  createdAt DateTime          @default(now())
 
   user   User   @relation(fields: [userId], references: [id])
   barber Barber @relation(fields: [barberId], references: [id])
