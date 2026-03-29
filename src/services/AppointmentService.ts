@@ -34,6 +34,7 @@ class AppointmentService {
       where: {
         barberId: newAppointment.barberId,
         date: newAppointment.date,
+        status: 'scheduled'
       },
     });
 

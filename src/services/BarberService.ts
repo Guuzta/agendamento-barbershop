@@ -50,6 +50,7 @@ class BarberService {
           gte: startDay,
           lte: endDay,
         },
+        status: "scheduled",
       },
       select: {
         date: true,
