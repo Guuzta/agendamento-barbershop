@@ -49,6 +49,7 @@ class UserService {
       user.id,
       user.name,
       user.email,
+      user.role,
     );
 
     return {

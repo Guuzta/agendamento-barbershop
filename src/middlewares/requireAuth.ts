@@ -22,11 +22,12 @@ const requireAuth = async (
   try {
     const payload = jwt.verify(token, env.tokenSecret) as JwtPayloadCustom;
 
-    const { id, name, email } = payload;
+    const { id, name, email, role } = payload;
 
     req.userId = id;
     req.userName = name;
     req.userEmail = email;
+    req.userRole = role;
 
     next();
   } catch {
