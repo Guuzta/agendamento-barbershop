@@ -11,6 +11,7 @@ import healthRoutes from "./routes/healthRoutes";
 import userRoutes from "./routes/userRoutes";
 import barberRoutes from "./routes/barberRoutes";
 import appointmentRoutes from "./routes/appointmentRoutes";
+import adminRoutes from "./routes/adminRoutes";
 
 import errorHandler from "./middlewares/errorHandler";
 
@@ -35,6 +36,7 @@ class App {
     this.app.use("/users", userRoutes);
     this.app.use("/barbers", barberRoutes);
     this.app.use("/appointments", appointmentRoutes);
+    this.app.use("/admin", adminRoutes);
   }
 
   errorHandler(): void {
