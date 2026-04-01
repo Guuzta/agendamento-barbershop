@@ -8,6 +8,6 @@ import isAdmin from "../middlewares/isAdmin";
 const router = Router();
 
 router.post("/barbers", requireAuth, isAdmin, AdminController.createNewBarber);
-router.get("/barbers", AdminController.listAllBarbers)
+router.get("/barbers", requireAuth, isAdmin, AdminController.listAllBarbers);
 
 export default router;
