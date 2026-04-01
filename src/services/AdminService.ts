@@ -1,7 +1,8 @@
 import { prisma } from "../lib/prisma";
+import { startOfDay, endOfDay, parseISO } from "date-fns";
 
 import { GenericMessage } from "../types/types";
-import { Barber } from "../types/admin";
+import { Appointment, Barber, GetAppointmentQuery } from "../types/admin";
 
 import AppError from "../utils/AppError";
 
@@ -26,6 +27,27 @@ class AdminService {
     const barbers = await prisma.barber.findMany();
 
     return barbers;
+  }
+
+  async listAllAppointments({
+    barberId,
+    date,
+    status,
+  }: GetAppointmentQuery): Promise<Appointment[]> {
+    const appointments = await prisma.appointment.findMany({
+      where: {
+        ...(barberId && { barberId }),
+        ...(status && { status }),
+        ...(date && {
+          date: {
+            gte: startOfDay(parseISO(date)),
+            lt: endOfDay(parseISO(date)),
+          },
+        }),
+      },
+    });
+
+    return appointments;
   }
 }
 

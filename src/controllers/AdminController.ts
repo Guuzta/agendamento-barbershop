@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 
-import { RegisterBarberBody } from "../types/admin";
+import {
+  Appointment,
+  GetAppointmentQuery,
+  RegisterBarberBody,
+} from "../types/admin";
 import { Barber } from "../types/admin";
 import { GenericMessage } from "../types/types";
 
@@ -31,7 +35,31 @@ class AdminController {
     try {
       const barbers = await adminService.listAllBarbers();
 
-      res.status(201).json(barbers);
+      res.status(200).json(barbers);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async listAllAppointments(
+    req: Request<{}, {}, {}, GetAppointmentQuery>,
+    res: Response<Appointment[]>,
+    next: NextFunction,
+  ) {
+    try {
+      const barberId = req.query.barberId
+        ? Number(req.query.barberId)
+        : req.query.barberId;
+
+      const { date, status } = req.query;
+
+      const appointments = await adminService.listAllAppointments({
+        barberId,
+        date,
+        status,
+      });
+
+      res.status(200).json(appointments);
     } catch (error) {
       next(error);
     }
