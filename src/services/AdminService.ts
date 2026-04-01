@@ -1,6 +1,7 @@
 import { prisma } from "../lib/prisma";
 
 import { GenericMessage } from "../types/types";
+import { Barber } from "../types/admin";
 
 import AppError from "../utils/AppError";
 
@@ -19,6 +20,12 @@ class AdminService {
     return {
       message: "Barber created successfully",
     };
+  }
+
+  async listAllBarbers(): Promise<Barber[]> {
+    const barbers = await prisma.barber.findMany();
+
+    return barbers;
   }
 }
 
