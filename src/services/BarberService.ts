@@ -1,12 +1,12 @@
 import { prisma } from "../lib/prisma";
 import { startOfDay, endOfDay, isAfter, parseISO, addHours } from "date-fns";
 
-import { Barber, BarberId, ListBarbersResponse } from "../types/barber";
+import { Barber, BarberId } from "../types/barber";
 
 import AppError from "../utils/AppError";
 
 class BarberService {
-  async listAll(): Promise<ListBarbersResponse> {
+  async listAll(): Promise<Barber[]> {
     const barbers = await prisma.barber.findMany({
       select: {
         id: true,
@@ -14,7 +14,7 @@ class BarberService {
       },
     });
 
-    return { barbers };
+    return barbers;
   }
 
   async getBarberById(id: BarberId): Promise<Barber> {

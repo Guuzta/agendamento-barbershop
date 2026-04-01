@@ -3,7 +3,6 @@ import { Request, Response, NextFunction } from "express";
 import {
   Barber,
   GetBarberParams,
-  ListBarbersResponse,
   BarberId,
   GetBarberQuery,
 } from "../types/barber";
@@ -13,11 +12,7 @@ import barberService from "../services/BarberService";
 import AppError from "../utils/AppError";
 
 class BarberController {
-  async listAll(
-    req: Request,
-    res: Response<ListBarbersResponse>,
-    next: NextFunction,
-  ) {
+  async listAll(req: Request, res: Response<Barber[]>, next: NextFunction) {
     try {
       const barbers = await barberService.listAll();
 
