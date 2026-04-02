@@ -22,3 +22,11 @@ export interface Appointment {
   status: "scheduled" | "canceled" | "completed";
   createdAt: Date;
 }
+
+export interface GetBarberParams {
+  id: string;
+}
+
+export interface UpdateBarberBody {
+  name: string;
+}

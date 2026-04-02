@@ -10,5 +10,6 @@ const router = Router();
 router.post("/barbers", requireAuth, isAdmin, AdminController.createNewBarber);
 router.get("/barbers", requireAuth, isAdmin, AdminController.listAllBarbers);
 router.get("/appointments", requireAuth, isAdmin, AdminController.listAllAppointments);
+router.put("/barbers/:id", requireAuth, isAdmin, AdminController.updateBarber)
 
 export default router;

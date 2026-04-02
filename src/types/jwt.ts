@@ -9,7 +9,12 @@ export interface JwtPayloadCustom {
   role: string;
 }
 
-export interface AuthenticatedRequest<P = {}> extends Request {
+export interface AuthenticatedRequest<
+  P = {},
+  ResBody = any,
+  ReqBody = any,
+  ReqQuery = any,
+> extends Request<P, ResBody, ReqBody, ReqQuery> {
   userId?: number;
   userName?: string;
   userEmail?: string;

@@ -3,12 +3,16 @@ import { Request, Response, NextFunction } from "express";
 import {
   Appointment,
   GetAppointmentQuery,
+  GetBarberParams,
+  UpdateBarberBody,
   RegisterBarberBody,
 } from "../types/admin";
+
 import { Barber } from "../types/admin";
 import { GenericMessage } from "../types/types";
 
 import adminService from "../services/AdminService";
+import { AuthenticatedRequest } from "../types/jwt";
 
 class AdminController {
   async createNewBarber(
@@ -60,6 +64,23 @@ class AdminController {
       });
 
       res.status(200).json(appointments);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async updateBarber(
+    req: AuthenticatedRequest<GetBarberParams, {}, UpdateBarberBody>,
+    res: Response<GenericMessage>,
+    next: NextFunction,
+  ) {
+    try {
+      const id = Number(req.params.id);
+      const { name } = req.body;
+
+      const message = await adminService.updateBarber(id, name);
+
+      res.status(200).json(message);
     } catch (error) {
       next(error);
     }

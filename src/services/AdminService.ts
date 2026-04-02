@@ -49,6 +49,23 @@ class AdminService {
 
     return appointments;
   }
+
+  async updateBarber(id: number, name: string): Promise<GenericMessage> {
+    const barberExists = await prisma.barber.findUnique({ where: { id } });
+
+    if (!barberExists) {
+      throw new AppError("Barber not found", 404);
+    }
+
+    await prisma.barber.update({
+      where: { id },
+      data: { name },
+    });
+
+    return {
+      message: "Barber updated successfully",
+    };
+  }
 }
 
 export default new AdminService();
