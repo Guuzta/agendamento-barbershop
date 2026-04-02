@@ -34,7 +34,7 @@ class AppointmentService {
       where: {
         barberId: newAppointment.barberId,
         date: newAppointment.date,
-        status: 'scheduled'
+        status: "scheduled",
       },
     });
 
@@ -51,7 +51,7 @@ class AppointmentService {
     }
 
     const barber = await prisma.barber.findUnique({
-      where: { id: newAppointment.barberId },
+      where: { id: newAppointment.barberId, isActive: true },
     });
 
     if (!barber) {
