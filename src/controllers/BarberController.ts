@@ -28,9 +28,7 @@ class BarberController {
     next: NextFunction,
   ) {
     try {
-      const id: BarberId = {
-        id: Number(req.params.id),
-      };
+      const id = Number(req.params.id);
 
       const barber = await barberService.getBarberById(id);
 

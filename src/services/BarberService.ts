@@ -8,6 +8,7 @@ import AppError from "../utils/AppError";
 class BarberService {
   async listAll(): Promise<Barber[]> {
     const barbers = await prisma.barber.findMany({
+      where: { isActive: true },
       select: {
         id: true,
         name: true,
@@ -17,9 +18,12 @@ class BarberService {
     return barbers;
   }
 
-  async getBarberById(id: BarberId): Promise<Barber> {
+  async getBarberById(id: number): Promise<Barber> {
     const barber = await prisma.barber.findUnique({
-      where: id,
+      where: {
+        id,
+        isActive: true,
+      },
       select: {
         id: true,
         name: true,
@@ -42,6 +46,14 @@ class BarberService {
     const endDay = endOfDay(date);
 
     const { id } = barberId;
+
+    const barberExist = await prisma.barber.findUnique({
+      where: { id, isActive: true },
+    });
+
+    if (!barberExist) {
+      throw new AppError("Barber not found", 404);
+    }
 
     const appointments = await prisma.appointment.findMany({
       where: {
