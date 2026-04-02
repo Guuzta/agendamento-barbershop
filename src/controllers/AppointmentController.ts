@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
 
 import {
   Appointment,
@@ -35,7 +35,7 @@ class AppointmentController {
   }
 
   async createNewAppointment(
-    req: Request<{}, {}, AppointmentBody>,
+    req: AuthenticatedRequest<{}, {}, AppointmentBody>,
     res: Response<GenericMessage>,
     next: NextFunction,
   ) {

@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
 
 import {
   Appointment,
@@ -16,7 +16,7 @@ import { AuthenticatedRequest } from "../types/jwt";
 
 class AdminController {
   async createNewBarber(
-    req: Request<{}, {}, RegisterBarberBody>,
+    req: AuthenticatedRequest<{}, {}, RegisterBarberBody>,
     res: Response<GenericMessage>,
     next: NextFunction,
   ) {
@@ -32,7 +32,7 @@ class AdminController {
   }
 
   async listAllBarbers(
-    req: Request,
+    req: AuthenticatedRequest,
     res: Response<Barber[]>,
     next: NextFunction,
   ) {
@@ -46,7 +46,7 @@ class AdminController {
   }
 
   async listAllAppointments(
-    req: Request<{}, {}, {}, GetAppointmentQuery>,
+    req: AuthenticatedRequest<{}, {}, {}, GetAppointmentQuery>,
     res: Response<Appointment[]>,
     next: NextFunction,
   ) {
@@ -87,7 +87,7 @@ class AdminController {
   }
 
   async disableBarber(
-    req: Request<GetBarberParams>,
+    req: AuthenticatedRequest<GetBarberParams>,
     res: Response<GenericMessage>,
     next: NextFunction,
   ) {
