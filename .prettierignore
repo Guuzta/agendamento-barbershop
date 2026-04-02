@@ -1,2 +1,4 @@
 #Ignore adminRoutes.ts
 src/routes/adminRoutes.ts
+#Ignore barberRoutes.ts
+src/routes/barberRoutes.ts
