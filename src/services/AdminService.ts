@@ -66,6 +66,29 @@ class AdminService {
       message: "Barber updated successfully",
     };
   }
+
+  async disableBarber(id: number): Promise<GenericMessage> {
+    const barberExists = await prisma.barber.findUnique({ where: { id } });
+
+    if (!barberExists) {
+      throw new AppError("Barber not found", 404);
+    }
+
+    if (!barberExists.isActive) {
+      throw new AppError("Barber already disabled", 409);
+    }
+
+    await prisma.barber.update({
+      where: { id },
+      data: {
+        isActive: false,
+      },
+    });
+
+    return {
+      message: "Barber disabled successfully",
+    };
+  }
 }
 
 export default new AdminService();

@@ -85,6 +85,22 @@ class AdminController {
       next(error);
     }
   }
+
+  async disableBarber(
+    req: Request<GetBarberParams>,
+    res: Response<GenericMessage>,
+    next: NextFunction,
+  ) {
+    try {
+      const id = Number(req.params.id);
+
+      const message = await adminService.disableBarber(id);
+
+      res.status(200).json(message);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default new AdminController();
