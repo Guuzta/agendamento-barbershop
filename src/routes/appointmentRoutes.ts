@@ -6,7 +6,7 @@ import requireAuth from "../middlewares/requireAuth";
 const router = Router();
 
 router.get("/", requireAuth, AppointmentController.listUserAppointments);
-router.post("/", AppointmentController.createNewAppointment);
+router.post("/", requireAuth, AppointmentController.createNewAppointment);
 router.get("/:id", requireAuth, AppointmentController.getUserAppointment);
 router.delete("/:id", requireAuth, AppointmentController.cancelAppointment);
 
