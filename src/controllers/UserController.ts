@@ -1,11 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 
-import {
-  LoginUserBody,
-  RegisterUserBody,
-  RegisterResponse,
-  AccessToken,
-} from "../types/user";
+import { RegisterResponse, AccessToken } from "../types/user";
+
+import { RegisterUserBody } from "../schemas/registerUserSchema";
+import { LoginUserBody } from "../schemas/loginUserSchema";
 
 import userService from "../services/UserService";
 
