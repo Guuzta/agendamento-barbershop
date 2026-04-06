@@ -4,7 +4,7 @@ import tseslint from "typescript-eslint";
 
 export default defineConfig(
   {
-    ignores: ["dist", "node_modules", "prisma"],
+    ignores: ["dist", "node_modules", "prisma", "tests", "jest**"],
   },
 
   eslint.configs.recommended,
