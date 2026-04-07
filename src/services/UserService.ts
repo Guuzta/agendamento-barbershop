@@ -14,7 +14,7 @@ class UserService {
     const userExists = await prisma.user.findUnique({ where: { email } });
 
     if (userExists) {
-      throw new AppError("Unable to register the user", 400);
+      throw new AppError("Unable to register the user", 409);
     }
 
     const hashedPassword = await passwordHasher.hash(password);

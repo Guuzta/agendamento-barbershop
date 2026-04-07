@@ -18,7 +18,7 @@ class UserController {
 
       const user = await userService.register(name, email, password);
 
-      res.status(200).json(user);
+      res.status(201).json(user);
     } catch (error) {
       next(error);
     }

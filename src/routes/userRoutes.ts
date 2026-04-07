@@ -13,7 +13,7 @@ router.post(
   userController.register,
 );
 
-router.get(
+router.post(
   "/login", 
   validateInput(loginUserSchema), 
   userController.login

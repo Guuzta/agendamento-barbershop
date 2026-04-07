@@ -3,8 +3,6 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const PORT = process.env.PORT;
-
 import "./config/env";
 
 import healthRoutes from "./routes/healthRoutes";
@@ -19,9 +17,6 @@ class App {
   app = express();
 
   startServer(): void {
-    this.app.listen(PORT, () => {
-      console.log(`App listening on port ${PORT}...`);
-    });
     this.middlewares();
     this.routes();
     this.errorHandler();
@@ -44,6 +39,9 @@ class App {
   }
 }
 
-const app = new App();
+const appServer = new App();
+const app = appServer.app;
 
-app.startServer();
+appServer.startServer();
+
+export default app;
