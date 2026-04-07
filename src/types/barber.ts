@@ -8,7 +8,7 @@ export interface ListBarbersResponse {
 }
 
 export interface GetBarberParams {
-  id: string;
+  id: number;
 }
 
 export interface GetBarberQuery {

@@ -1,7 +1,7 @@
 import { prisma } from "../lib/prisma";
 import { startOfDay, endOfDay, isAfter, parseISO, addHours } from "date-fns";
 
-import { Barber, BarberId } from "../types/barber";
+import { Barber } from "../types/barber";
 
 import AppError from "../utils/AppError";
 
@@ -38,14 +38,12 @@ class BarberService {
   }
 
   async getBarberAvailability(
-    barberId: BarberId,
+    id: number,
     dateString: string,
   ): Promise<string[]> {
     const date = parseISO(dateString);
     const startDay = startOfDay(date);
     const endDay = endOfDay(date);
-
-    const { id } = barberId;
 
     const barberExist = await prisma.barber.findUnique({
       where: { id, isActive: true },

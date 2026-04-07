@@ -1,5 +1,3 @@
-/*eslint-disable*/
-
 import { Request } from "express";
 
 export interface JwtPayloadCustom {

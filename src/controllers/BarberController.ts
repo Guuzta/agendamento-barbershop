@@ -1,11 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 
-import {
-  Barber,
-  GetBarberParams,
-  BarberId,
-  GetBarberQuery,
-} from "../types/barber";
+import { Barber, GetBarberParams, GetBarberQuery } from "../types/barber";
+
+import { AuthenticatedRequest } from "../types/jwt";
 
 import barberService from "../services/BarberService";
 
@@ -23,12 +20,12 @@ class BarberController {
   }
 
   async getBarberById(
-    req: Request<GetBarberParams>,
+    req: AuthenticatedRequest<GetBarberParams>,
     res: Response<Barber>,
     next: NextFunction,
   ) {
     try {
-      const id = Number(req.params.id);
+      const { id } = req.params;
 
       const barber = await barberService.getBarberById(id);
 
@@ -39,14 +36,12 @@ class BarberController {
   }
 
   async getBarberAvailability(
-    req: Request<GetBarberParams, {}, {}, GetBarberQuery>,
+    req: AuthenticatedRequest<GetBarberParams, {}, {}, GetBarberQuery>,
     res: Response<string[]>,
     next: NextFunction,
   ) {
     try {
-      const barberId: BarberId = {
-        id: Number(req.params.id),
-      };
+      const { id } = req.params;
 
       const { date } = req.query;
 
@@ -55,7 +50,7 @@ class BarberController {
       }
 
       const availableHours = await barberService.getBarberAvailability(
-        barberId,
+        id,
         date,
       );
 
