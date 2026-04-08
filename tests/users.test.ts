@@ -6,15 +6,15 @@ import { prisma } from "../src/lib/prisma";
 
 describe("Users Routes", () => {
   const testName = "teste";
-  const testEmail = "teste@teste.com";
+  const testEmail = "teste1@teste.com";
   const testPassword = "Minhasenha12#";
 
   beforeEach(async () => {
-    await prisma.user.deleteMany();
+    await prisma.user.deleteMany({ where: { email: testEmail } });
   });
 
   describe("POST /users/register", () => {
-    it("Should register a user", async () => {
+    it("should register a user", async () => {
       const res = await request(app).post("/users/register").send({
         name: testName,
         email: testEmail,
@@ -28,7 +28,7 @@ describe("Users Routes", () => {
       });
     });
 
-    it("Should fail if email is missing", async () => {
+    it("should fail if email is missing", async () => {
       const res = await request(app).post("/users/register").send({
         name: testName,
         password: testPassword,
@@ -38,7 +38,7 @@ describe("Users Routes", () => {
       expect(res.body).toHaveProperty("errors");
     });
 
-    it("Should fail if password is missing", async () => {
+    it("should fail if password is missing", async () => {
       const res = await request(app).post("/users/register").send({
         name: testName,
         email: testEmail,
@@ -48,7 +48,7 @@ describe("Users Routes", () => {
       expect(res.body).toHaveProperty("errors");
     });
 
-    it("Should fail if password is weak", async () => {
+    it("should fail if password is weak", async () => {
       const res = await request(app).post("/users/register").send({
         name: testName,
         email: testEmail,
@@ -59,7 +59,7 @@ describe("Users Routes", () => {
       expect(res.body).toHaveProperty("errors");
     });
 
-    it("Should fail if email is invalid", async () => {
+    it("should fail if email is invalid", async () => {
       const res = await request(app).post("/users/register").send({
         name: testName,
         email: "Invalidemail.com",
@@ -70,7 +70,7 @@ describe("Users Routes", () => {
       expect(res.body).toHaveProperty("errors");
     });
 
-    it("Should not allow registering with an email that already exists", async () => {
+    it("should not allow registering with an email that already exists", async () => {
       const hashedPassword = await bcrypt.hash(testPassword, 10);
 
       await prisma.user.create({
@@ -105,7 +105,7 @@ describe("Users Routes", () => {
       });
     });
 
-    it("Should login a user", async () => {
+    it("should login a user", async () => {
       const res = await request(app).post("/users/login").send({
         email: testEmail,
         password: testPassword,
@@ -115,7 +115,7 @@ describe("Users Routes", () => {
       expect(res.body).toHaveProperty("accessToken");
     });
 
-    it("Should not allow login when the email does not exist", async () => {
+    it("should not allow login when the email does not exist", async () => {
       const res = await request(app).post("/users/login").send({
         email: "InvalidEmail@test.com",
         password: testPassword,
@@ -125,7 +125,7 @@ describe("Users Routes", () => {
       expect(res.body).toHaveProperty("message");
     });
 
-    it("Should not allow login when the password is incorrect", async () => {
+    it("should not allow login when the password is incorrect", async () => {
       const res = await request(app).post("/users/login").send({
         email: testEmail,
         password: "IncorrectPassword1234#",
@@ -135,7 +135,7 @@ describe("Users Routes", () => {
       expect(res.body).toHaveProperty("message");
     });
 
-    it("Should not allow login when the required fields are missing", async () => {
+    it("should not allow login when the required fields are missing", async () => {
       const res = await request(app).post("/users/login").send({});
 
       expect(res.statusCode).toBe(400);
