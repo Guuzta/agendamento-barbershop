@@ -1,12 +1,10 @@
 import { Response, NextFunction } from "express";
 
-import {
-  Appointment,
-  AppointmentBody,
-  GetAppointmentParams,
-} from "../types/appointment";
+import { Appointment, GetAppointmentParams } from "../types/appointment";
 import { GenericMessage } from "../types/types";
 import { AuthenticatedRequest } from "../types/jwt";
+
+import { AppointmentBody } from "../schemas/appointmentSchema";
 
 import appointmentService from "../services/AppointmentService";
 
