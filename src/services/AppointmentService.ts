@@ -1,7 +1,11 @@
 import { prisma } from "../lib/prisma";
 
-import { Appointment, AppointmentBody } from "../types/appointment";
+import { Appointment } from "../types/appointment";
 import { GenericMessage } from "../types/types";
+
+import { AppointmentBody } from "../schemas/appointmentSchema";
+
+import isWithinWorkingHours from "../utils/AppointmentTimeValidator";
 
 import AppError from "../utils/AppError";
 
@@ -30,6 +34,13 @@ class AppointmentService {
       throw new AppError("Cannot schedule in the past", 400);
     }
 
+    if (!isWithinWorkingHours(requestedDate)) {
+      throw new AppError(
+        "Cannot schedule outside the barber's working hours",
+        400,
+      );
+    }
+
     const existingAppointment = await prisma.appointment.findFirst({
       where: {
         barberId: newAppointment.barberId,
@@ -39,7 +50,7 @@ class AppointmentService {
     });
 
     if (existingAppointment) {
-      throw new AppError("This time is already booked", 400);
+      throw new AppError("This time is already booked", 409);
     }
 
     const user = await prisma.user.findUnique({
