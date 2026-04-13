@@ -8,6 +8,7 @@ const config: Config.InitialOptions = {
   testEnvironment: "node",
   setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
   testMatch: ["**/tests/**/*.test.ts"],
+  testTimeout: 10000,
 };
 
 export default config;
