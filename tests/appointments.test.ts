@@ -558,5 +558,54 @@ describe("Appointment Routes", () => {
       expect(res.statusCode).toBe(400);
       expect(res.body).toHaveProperty("message");
     });
+
+    it("should return 401 if no token is provided", async () => {
+      const appointmentDate = generateAppointmentDateUTC();
+
+      await request(app)
+        .post("/appointments")
+        .set("Authorization", `Bearer ${token}`)
+        .send({
+          userId,
+          barberId,
+          date: appointmentDate,
+        });
+
+      const appointment = await prisma.appointment.findFirst({
+        where: { userId },
+      });
+
+      const appointmentId = appointment!.id;
+
+      const res = await request(app).delete(`/appointments/${appointmentId}`);
+      expect(res.status).toBe(401);
+      expect(res.body).toHaveProperty("message");
+    });
+
+    it("should return 403 if token is invalid or expired", async () => {
+      const appointmentDate = generateAppointmentDateUTC();
+
+      await request(app)
+        .post("/appointments")
+        .set("Authorization", `Bearer ${token}`)
+        .send({
+          userId,
+          barberId,
+          date: appointmentDate,
+        });
+
+      const appointment = await prisma.appointment.findFirst({
+        where: { userId },
+      });
+
+      const appointmentId = appointment!.id;
+
+      const res = await request(app)
+        .delete(`/appointments/${appointmentId}`)
+        .set("Authorization", "Bearer invalidtoken");
+
+      expect(res.status).toBe(403);
+      expect(res.body).toHaveProperty("message");
+    });
   });
 });
