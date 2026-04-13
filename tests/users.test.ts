@@ -23,12 +23,13 @@ describe("Users Routes", () => {
 
       expect(res.statusCode).toBe(201);
       expect(res.body).toEqual({
+        id: res.body.id,
         name: testName,
         email: testEmail,
       });
     });
 
-    it("should fail if email is missing", async () => {
+    it("should return 400 if email is missing", async () => {
       const res = await request(app).post("/users/register").send({
         name: testName,
         password: testPassword,
@@ -38,7 +39,7 @@ describe("Users Routes", () => {
       expect(res.body).toHaveProperty("errors");
     });
 
-    it("should fail if password is missing", async () => {
+    it("should return 400 if password is missing", async () => {
       const res = await request(app).post("/users/register").send({
         name: testName,
         email: testEmail,
@@ -48,7 +49,7 @@ describe("Users Routes", () => {
       expect(res.body).toHaveProperty("errors");
     });
 
-    it("should fail if password is weak", async () => {
+    it("should return 400 if password is weak", async () => {
       const res = await request(app).post("/users/register").send({
         name: testName,
         email: testEmail,
@@ -59,7 +60,7 @@ describe("Users Routes", () => {
       expect(res.body).toHaveProperty("errors");
     });
 
-    it("should fail if email is invalid", async () => {
+    it("should return 400 if email is invalid", async () => {
       const res = await request(app).post("/users/register").send({
         name: testName,
         email: "Invalidemail.com",
