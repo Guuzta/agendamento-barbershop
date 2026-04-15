@@ -4,6 +4,9 @@ import { addDays, setHours, setMinutes } from "date-fns";
 import app from "../src/app";
 import { prisma } from "../src/lib/prisma";
 
+import createUser from "./helpers/createUser";
+import createBarber from "./helpers/createBarber";
+
 function generateAppointmentDateUTC(): string {
   let date = addDays(new Date(), 1);
 
@@ -23,54 +26,26 @@ describe("Appointment Routes", () => {
   const testEmail = "teste3@teste.com";
   const testPassword = "Minhasenha12#";
 
-  let token: string;
-  let barberId: number;
-  let userId: number;
-
-  beforeAll(async () => {
-    await request(app).post("/users/register").send({
-      name: testName,
-      email: testEmail,
-      password: testPassword,
-    });
-
-    const response = await request(app).post("/users/login").send({
-      email: testEmail,
-      password: testPassword,
-    });
-
-    const barber = await prisma.barber.create({
-      data: {
-        name: "Marcos",
-      },
-    });
-
-    const user = await prisma.user.findUnique({
-      where: { email: testEmail },
-    });
-
-    userId = user!.id;
-    barberId = barber.id;
-    token = response.body.accessToken;
-  });
-
   afterEach(async () => {
     jest.restoreAllMocks();
     await prisma.appointment.deleteMany();
-  });
-
-  afterAll(async () => {
-    await prisma.barber.deleteMany({ where: { id: barberId } });
-    await prisma.user.deleteMany({ where: { email: testEmail } });
+    await prisma.barber.deleteMany();
+    await prisma.user.deleteMany();
   });
 
   describe("GET /appointments", () => {
     it("should return a list of user appointments", async () => {
+      const { accessToken, userId } = await createUser(
+        testName,
+        testEmail,
+        testPassword,
+      );
+      const barberId = await createBarber();
       const appointmentDate = generateAppointmentDateUTC();
 
       await request(app)
         .post("/appointments")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send({
           userId,
           barberId,
@@ -79,7 +54,7 @@ describe("Appointment Routes", () => {
 
       const res = await request(app)
         .get("/appointments")
-        .set("Authorization", `Bearer ${token}`);
+        .set("Authorization", `Bearer ${accessToken}`);
 
       expect(res.statusCode).toBe(200);
       expect(res.body).toHaveLength(1);
@@ -94,9 +69,15 @@ describe("Appointment Routes", () => {
     });
 
     it("should return empty list when no user appointments exist", async () => {
+      const { accessToken } = await createUser(
+        testName,
+        testEmail,
+        testPassword,
+      );
+
       const res = await request(app)
         .get("/appointments")
-        .set("Authorization", `Bearer ${token}`);
+        .set("Authorization", `Bearer ${accessToken}`);
 
       expect(res.statusCode).toBe(200);
       expect(res.body).toEqual([]);
@@ -120,11 +101,17 @@ describe("Appointment Routes", () => {
 
   describe("POST /appointments", () => {
     it("should create an appointment", async () => {
+      const { accessToken, userId } = await createUser(
+        testName,
+        testEmail,
+        testPassword,
+      );
+      const barberId = await createBarber();
       const appointmentDate = generateAppointmentDateUTC();
 
       const res = await request(app)
         .post("/appointments")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send({
           userId,
           barberId,
@@ -136,9 +123,17 @@ describe("Appointment Routes", () => {
     });
 
     it("should return 400 when the appointment date is in the past", async () => {
+      const { accessToken, userId } = await createUser(
+        testName,
+        testEmail,
+        testPassword,
+      );
+      const barberId = await createBarber();
+      const appointmentDate = generateAppointmentDateUTC();
+
       const res = await request(app)
         .post("/appointments")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send({
           userId,
           barberId,
@@ -150,11 +145,17 @@ describe("Appointment Routes", () => {
     });
 
     it("should return 409 when the barber already has an appointment at the same time", async () => {
+      const { accessToken, userId } = await createUser(
+        testName,
+        testEmail,
+        testPassword,
+      );
+      const barberId = await createBarber();
       const appointmentDate = generateAppointmentDateUTC();
 
       await request(app)
         .post("/appointments")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send({
           userId,
           barberId,
@@ -163,7 +164,7 @@ describe("Appointment Routes", () => {
 
       const res = await request(app)
         .post("/appointments")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send({
           userId,
           barberId,
@@ -175,11 +176,17 @@ describe("Appointment Routes", () => {
     });
 
     it("should return 404 if userId does not exist", async () => {
+      const { accessToken } = await createUser(
+        testName,
+        testEmail,
+        testPassword,
+      );
+      const barberId = await createBarber();
       const appointmentDate = generateAppointmentDateUTC();
 
       const res = await request(app)
         .post("/appointments")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send({
           userId: 9999,
           barberId,
@@ -191,11 +198,16 @@ describe("Appointment Routes", () => {
     });
 
     it("should return 404 if barberId does not exist", async () => {
+      const { accessToken, userId } = await createUser(
+        testName,
+        testEmail,
+        testPassword,
+      );
       const appointmentDate = generateAppointmentDateUTC();
 
       const res = await request(app)
         .post("/appointments")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send({
           userId,
           barberId: 9999,
@@ -207,11 +219,16 @@ describe("Appointment Routes", () => {
     });
 
     it("should return 400 when userId is invalid", async () => {
+      const { accessToken } = await createUser(
+        testName,
+        testEmail,
+        testPassword,
+      );
       const appointmentDate = generateAppointmentDateUTC();
 
       const res = await request(app)
         .post("/appointments")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send({
           userId: "invalidUserId",
           barberId: 9999,
@@ -223,11 +240,16 @@ describe("Appointment Routes", () => {
     });
 
     it("should return 400 when barberId is invalid", async () => {
+      const { accessToken, userId } = await createUser(
+        testName,
+        testEmail,
+        testPassword,
+      );
       const appointmentDate = generateAppointmentDateUTC();
 
       const res = await request(app)
         .post("/appointments")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send({
           userId,
           barberId: "invalidBarberId",
@@ -239,11 +261,17 @@ describe("Appointment Routes", () => {
     });
 
     it("should return 400 when date is invalid", async () => {
+      const { accessToken, userId } = await createUser(
+        testName,
+        testEmail,
+        testPassword,
+      );
+      const barberId = await createBarber();
       const appointmentDate = generateAppointmentDateUTC();
 
       const res = await request(app)
         .post("/appointments")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send({
           userId,
           barberId,
@@ -255,9 +283,16 @@ describe("Appointment Routes", () => {
     });
 
     it("should return 400 when outside the barber's working hours", async () => {
+      const { accessToken, userId } = await createUser(
+        testName,
+        testEmail,
+        testPassword,
+      );
+      const barberId = await createBarber();
+
       const res = await request(app)
         .post("/appointments")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send({
           userId,
           barberId,
@@ -286,11 +321,17 @@ describe("Appointment Routes", () => {
 
   describe("GET /appointments/:id", () => {
     it("should return a user's appointment", async () => {
+      const { accessToken, userId } = await createUser(
+        testName,
+        testEmail,
+        testPassword,
+      );
+      const barberId = await createBarber();
       const appointmentDate = generateAppointmentDateUTC();
 
       await request(app)
         .post("/appointments")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send({
           userId,
           barberId,
@@ -305,7 +346,7 @@ describe("Appointment Routes", () => {
 
       const res = await request(app)
         .get(`/appointments/${appointmentId}`)
-        .set("Authorization", `Bearer ${token}`);
+        .set("Authorization", `Bearer ${accessToken}`);
 
       expect(res.statusCode).toBe(200);
 
@@ -319,18 +360,30 @@ describe("Appointment Routes", () => {
     });
 
     it("should return 404 if appointment does not exist", async () => {
+      const { accessToken } = await createUser(
+        testName,
+        testEmail,
+        testPassword,
+      );
+
       const res = await request(app)
         .get("/appointments/9999")
-        .set("Authorization", `Bearer ${token}`);
+        .set("Authorization", `Bearer ${accessToken}`);
 
       expect(res.statusCode).toBe(404);
       expect(res.body).toHaveProperty("message");
     });
 
     it("should return 400 if ID is invalid", async () => {
+      const { accessToken } = await createUser(
+        testName,
+        testEmail,
+        testPassword,
+      );
+
       const res = await request(app)
         .get("/appointments/abc")
-        .set("Authorization", `Bearer ${token}`);
+        .set("Authorization", `Bearer ${accessToken}`);
 
       expect(res.statusCode).toBe(400);
       expect(res.body).toHaveProperty("errors");
@@ -340,6 +393,8 @@ describe("Appointment Routes", () => {
       const otherUserName = "otherUser";
       const otherUserEmail = "otherUser@test.com";
       const otherUserPassword = "otherPassword12#";
+
+      const barberId = await createBarber();
 
       await request(app).post("/users/register").send({
         name: otherUserName,
@@ -374,21 +429,32 @@ describe("Appointment Routes", () => {
       });
 
       const appointmentId = appointmentRequest!.id;
+      const { accessToken } = await createUser(
+        testName,
+        testEmail,
+        testPassword,
+      );
 
       const res = await request(app)
         .get(`/appointments/${appointmentId}`)
-        .set("Authorization", `Bearer ${token}`);
+        .set("Authorization", `Bearer ${accessToken}`);
 
       expect(res.statusCode).toBe(403);
       expect(res.body).toHaveProperty("message");
     });
 
     it("should return 401 if no token is provided", async () => {
+      const { accessToken, userId } = await createUser(
+        testName,
+        testEmail,
+        testPassword,
+      );
+      const barberId = await createBarber();
       const appointmentDate = generateAppointmentDateUTC();
 
       await request(app)
         .post("/appointments")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send({
           userId,
           barberId,
@@ -407,11 +473,17 @@ describe("Appointment Routes", () => {
     });
 
     it("should return 403 if token is invalid or expired", async () => {
+      const { accessToken, userId } = await createUser(
+        testName,
+        testEmail,
+        testPassword,
+      );
+      const barberId = await createBarber();
       const appointmentDate = generateAppointmentDateUTC();
 
       await request(app)
         .post("/appointments")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send({
           userId,
           barberId,
@@ -435,11 +507,17 @@ describe("Appointment Routes", () => {
 
   describe("DELETE /appointments/:id", () => {
     it("should cancel an appointment", async () => {
+      const { accessToken, userId } = await createUser(
+        testName,
+        testEmail,
+        testPassword,
+      );
+      const barberId = await createBarber();
       const appointmentDate = generateAppointmentDateUTC();
 
       await request(app)
         .post("/appointments")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send({
           userId,
           barberId,
@@ -454,16 +532,22 @@ describe("Appointment Routes", () => {
 
       const res = await request(app)
         .delete(`/appointments/${appointmentId}`)
-        .set("Authorization", `Bearer ${token}`);
+        .set("Authorization", `Bearer ${accessToken}`);
 
       expect(res.statusCode).toBe(200);
       expect(res.body).toHaveProperty("message");
     });
 
     it("should return 404 if appointment does not exist", async () => {
+      const { accessToken } = await createUser(
+        testName,
+        testEmail,
+        testPassword,
+      );
+
       const res = await request(app)
         .delete("/appointments/9999")
-        .set("Authorization", `Bearer ${token}`);
+        .set("Authorization", `Bearer ${accessToken}`);
 
       expect(res.statusCode).toBe(404);
       expect(res.body).toHaveProperty("message");
@@ -473,6 +557,8 @@ describe("Appointment Routes", () => {
       const otherUserName = "otherUser";
       const otherUserEmail = "otherUser@test.com";
       const otherUserPassword = "otherPassword12#";
+
+      const barberId = await createBarber();
 
       await request(app).post("/users/register").send({
         name: otherUserName,
@@ -507,16 +593,27 @@ describe("Appointment Routes", () => {
       });
 
       const appointmentId = appointmentRequest!.id;
+      const { accessToken } = await createUser(
+        testName,
+        testEmail,
+        testPassword,
+      );
 
       const res = await request(app)
         .delete(`/appointments/${appointmentId}`)
-        .set("Authorization", `Bearer ${token}`);
+        .set("Authorization", `Bearer ${accessToken}`);
 
       expect(res.statusCode).toBe(403);
       expect(res.body).toHaveProperty("message");
     });
 
     it("should return 400 when trying to cancel a past appointment", async () => {
+      const { accessToken, userId } = await createUser(
+        testName,
+        testEmail,
+        testPassword,
+      );
+      const barberId = await createBarber();
       const pastDate = new Date("2026-01-01T13:00:00Z");
 
       const appointmentRequest = await prisma.appointment.create({
@@ -531,13 +628,19 @@ describe("Appointment Routes", () => {
 
       const res = await request(app)
         .delete(`/appointments/${appointmentId}`)
-        .set("Authorization", `Bearer ${token}`);
+        .set("Authorization", `Bearer ${accessToken}`);
 
       expect(res.statusCode).toBe(400);
       expect(res.body).toHaveProperty("message");
     });
 
     it("should return 400 when trying to cancel an appointment that is not scheduled", async () => {
+      const { accessToken, userId } = await createUser(
+        testName,
+        testEmail,
+        testPassword,
+      );
+      const barberId = await createBarber();
       const appointmentDate = generateAppointmentDateUTC();
 
       const appointmentRequest = await prisma.appointment.create({
@@ -553,18 +656,24 @@ describe("Appointment Routes", () => {
 
       const res = await request(app)
         .delete(`/appointments/${appointmentId}`)
-        .set("Authorization", `Bearer ${token}`);
+        .set("Authorization", `Bearer ${accessToken}`);
 
       expect(res.statusCode).toBe(400);
       expect(res.body).toHaveProperty("message");
     });
 
     it("should return 401 if no token is provided", async () => {
+      const { accessToken, userId } = await createUser(
+        testName,
+        testEmail,
+        testPassword,
+      );
+      const barberId = await createBarber();
       const appointmentDate = generateAppointmentDateUTC();
 
       await request(app)
         .post("/appointments")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send({
           userId,
           barberId,
@@ -583,11 +692,17 @@ describe("Appointment Routes", () => {
     });
 
     it("should return 403 if token is invalid or expired", async () => {
+      const { accessToken, userId } = await createUser(
+        testName,
+        testEmail,
+        testPassword,
+      );
+      const barberId = await createBarber();
       const appointmentDate = generateAppointmentDateUTC();
 
       await request(app)
         .post("/appointments")
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send({
           userId,
           barberId,
