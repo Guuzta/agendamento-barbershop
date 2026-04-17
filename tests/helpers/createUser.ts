@@ -3,11 +3,11 @@ import { prisma } from "../../src/lib/prisma";
 
 import app from "../../src/app";
 
-async function createUser(
-  name: string,
-  email: string,
-  password: string,
-): Promise<{ accessToken: string; userId: number }> {
+async function createUser(): Promise<{ accessToken: string; userId: number }> {
+  const name = "Test";
+  const email = "testJest@email.com";
+  const password = "testJest1234#";
+
   await request(app).post("/users/register").send({
     name,
     email,

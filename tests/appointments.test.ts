@@ -26,20 +26,13 @@ describe("Appointment Routes", () => {
   const testEmail = "teste3@teste.com";
   const testPassword = "Minhasenha12#";
 
-  afterEach(async () => {
+  beforeEach(async () => {
     jest.restoreAllMocks();
-    await prisma.appointment.deleteMany();
-    await prisma.barber.deleteMany();
-    await prisma.user.deleteMany();
   });
 
   describe("GET /appointments", () => {
     it("should return a list of user appointments", async () => {
-      const { accessToken, userId } = await createUser(
-        testName,
-        testEmail,
-        testPassword,
-      );
+      const { accessToken, userId } = await createUser();
       const barberId = await createBarber();
       const appointmentDate = generateAppointmentDateUTC();
 
@@ -69,11 +62,7 @@ describe("Appointment Routes", () => {
     });
 
     it("should return empty list when no user appointments exist", async () => {
-      const { accessToken } = await createUser(
-        testName,
-        testEmail,
-        testPassword,
-      );
+      const { accessToken } = await createUser();
 
       const res = await request(app)
         .get("/appointments")
@@ -101,11 +90,7 @@ describe("Appointment Routes", () => {
 
   describe("POST /appointments", () => {
     it("should create an appointment", async () => {
-      const { accessToken, userId } = await createUser(
-        testName,
-        testEmail,
-        testPassword,
-      );
+      const { accessToken, userId } = await createUser();
       const barberId = await createBarber();
       const appointmentDate = generateAppointmentDateUTC();
 
@@ -123,13 +108,8 @@ describe("Appointment Routes", () => {
     });
 
     it("should return 400 when the appointment date is in the past", async () => {
-      const { accessToken, userId } = await createUser(
-        testName,
-        testEmail,
-        testPassword,
-      );
+      const { accessToken, userId } = await createUser();
       const barberId = await createBarber();
-      const appointmentDate = generateAppointmentDateUTC();
 
       const res = await request(app)
         .post("/appointments")
@@ -145,11 +125,7 @@ describe("Appointment Routes", () => {
     });
 
     it("should return 409 when the barber already has an appointment at the same time", async () => {
-      const { accessToken, userId } = await createUser(
-        testName,
-        testEmail,
-        testPassword,
-      );
+      const { accessToken, userId } = await createUser();
       const barberId = await createBarber();
       const appointmentDate = generateAppointmentDateUTC();
 
@@ -176,11 +152,7 @@ describe("Appointment Routes", () => {
     });
 
     it("should return 404 if userId does not exist", async () => {
-      const { accessToken } = await createUser(
-        testName,
-        testEmail,
-        testPassword,
-      );
+      const { accessToken } = await createUser();
       const barberId = await createBarber();
       const appointmentDate = generateAppointmentDateUTC();
 
@@ -198,11 +170,7 @@ describe("Appointment Routes", () => {
     });
 
     it("should return 404 if barberId does not exist", async () => {
-      const { accessToken, userId } = await createUser(
-        testName,
-        testEmail,
-        testPassword,
-      );
+      const { accessToken, userId } = await createUser();
       const appointmentDate = generateAppointmentDateUTC();
 
       const res = await request(app)
@@ -219,11 +187,7 @@ describe("Appointment Routes", () => {
     });
 
     it("should return 400 when userId is invalid", async () => {
-      const { accessToken } = await createUser(
-        testName,
-        testEmail,
-        testPassword,
-      );
+      const { accessToken } = await createUser();
       const appointmentDate = generateAppointmentDateUTC();
 
       const res = await request(app)
@@ -240,11 +204,7 @@ describe("Appointment Routes", () => {
     });
 
     it("should return 400 when barberId is invalid", async () => {
-      const { accessToken, userId } = await createUser(
-        testName,
-        testEmail,
-        testPassword,
-      );
+      const { accessToken, userId } = await createUser();
       const appointmentDate = generateAppointmentDateUTC();
 
       const res = await request(app)
@@ -261,11 +221,7 @@ describe("Appointment Routes", () => {
     });
 
     it("should return 400 when date is invalid", async () => {
-      const { accessToken, userId } = await createUser(
-        testName,
-        testEmail,
-        testPassword,
-      );
+      const { accessToken, userId } = await createUser();
       const barberId = await createBarber();
       const appointmentDate = generateAppointmentDateUTC();
 
@@ -283,11 +239,7 @@ describe("Appointment Routes", () => {
     });
 
     it("should return 400 when outside the barber's working hours", async () => {
-      const { accessToken, userId } = await createUser(
-        testName,
-        testEmail,
-        testPassword,
-      );
+      const { accessToken, userId } = await createUser();
       const barberId = await createBarber();
 
       const res = await request(app)
@@ -321,11 +273,7 @@ describe("Appointment Routes", () => {
 
   describe("GET /appointments/:id", () => {
     it("should return a user's appointment", async () => {
-      const { accessToken, userId } = await createUser(
-        testName,
-        testEmail,
-        testPassword,
-      );
+      const { accessToken, userId } = await createUser();
       const barberId = await createBarber();
       const appointmentDate = generateAppointmentDateUTC();
 
@@ -360,11 +308,7 @@ describe("Appointment Routes", () => {
     });
 
     it("should return 404 if appointment does not exist", async () => {
-      const { accessToken } = await createUser(
-        testName,
-        testEmail,
-        testPassword,
-      );
+      const { accessToken } = await createUser();
 
       const res = await request(app)
         .get("/appointments/9999")
@@ -375,11 +319,7 @@ describe("Appointment Routes", () => {
     });
 
     it("should return 400 if ID is invalid", async () => {
-      const { accessToken } = await createUser(
-        testName,
-        testEmail,
-        testPassword,
-      );
+      const { accessToken } = await createUser();
 
       const res = await request(app)
         .get("/appointments/abc")
@@ -429,11 +369,7 @@ describe("Appointment Routes", () => {
       });
 
       const appointmentId = appointmentRequest!.id;
-      const { accessToken } = await createUser(
-        testName,
-        testEmail,
-        testPassword,
-      );
+      const { accessToken } = await createUser();
 
       const res = await request(app)
         .get(`/appointments/${appointmentId}`)
@@ -444,11 +380,7 @@ describe("Appointment Routes", () => {
     });
 
     it("should return 401 if no token is provided", async () => {
-      const { accessToken, userId } = await createUser(
-        testName,
-        testEmail,
-        testPassword,
-      );
+      const { accessToken, userId } = await createUser();
       const barberId = await createBarber();
       const appointmentDate = generateAppointmentDateUTC();
 
@@ -473,11 +405,7 @@ describe("Appointment Routes", () => {
     });
 
     it("should return 403 if token is invalid or expired", async () => {
-      const { accessToken, userId } = await createUser(
-        testName,
-        testEmail,
-        testPassword,
-      );
+      const { accessToken, userId } = await createUser();
       const barberId = await createBarber();
       const appointmentDate = generateAppointmentDateUTC();
 
@@ -507,11 +435,7 @@ describe("Appointment Routes", () => {
 
   describe("DELETE /appointments/:id", () => {
     it("should cancel an appointment", async () => {
-      const { accessToken, userId } = await createUser(
-        testName,
-        testEmail,
-        testPassword,
-      );
+      const { accessToken, userId } = await createUser();
       const barberId = await createBarber();
       const appointmentDate = generateAppointmentDateUTC();
 
@@ -539,11 +463,7 @@ describe("Appointment Routes", () => {
     });
 
     it("should return 404 if appointment does not exist", async () => {
-      const { accessToken } = await createUser(
-        testName,
-        testEmail,
-        testPassword,
-      );
+      const { accessToken } = await createUser();
 
       const res = await request(app)
         .delete("/appointments/9999")
@@ -593,11 +513,7 @@ describe("Appointment Routes", () => {
       });
 
       const appointmentId = appointmentRequest!.id;
-      const { accessToken } = await createUser(
-        testName,
-        testEmail,
-        testPassword,
-      );
+      const { accessToken } = await createUser();
 
       const res = await request(app)
         .delete(`/appointments/${appointmentId}`)
@@ -608,11 +524,7 @@ describe("Appointment Routes", () => {
     });
 
     it("should return 400 when trying to cancel a past appointment", async () => {
-      const { accessToken, userId } = await createUser(
-        testName,
-        testEmail,
-        testPassword,
-      );
+      const { accessToken, userId } = await createUser();
       const barberId = await createBarber();
       const pastDate = new Date("2026-01-01T13:00:00Z");
 
@@ -635,11 +547,7 @@ describe("Appointment Routes", () => {
     });
 
     it("should return 400 when trying to cancel an appointment that is not scheduled", async () => {
-      const { accessToken, userId } = await createUser(
-        testName,
-        testEmail,
-        testPassword,
-      );
+      const { accessToken, userId } = await createUser();
       const barberId = await createBarber();
       const appointmentDate = generateAppointmentDateUTC();
 
@@ -663,11 +571,7 @@ describe("Appointment Routes", () => {
     });
 
     it("should return 401 if no token is provided", async () => {
-      const { accessToken, userId } = await createUser(
-        testName,
-        testEmail,
-        testPassword,
-      );
+      const { accessToken, userId } = await createUser();
       const barberId = await createBarber();
       const appointmentDate = generateAppointmentDateUTC();
 
@@ -692,11 +596,7 @@ describe("Appointment Routes", () => {
     });
 
     it("should return 403 if token is invalid or expired", async () => {
-      const { accessToken, userId } = await createUser(
-        testName,
-        testEmail,
-        testPassword,
-      );
+      const { accessToken, userId } = await createUser();
       const barberId = await createBarber();
       const appointmentDate = generateAppointmentDateUTC();
 
