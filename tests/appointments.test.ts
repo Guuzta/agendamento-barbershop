@@ -1,31 +1,13 @@
 import request from "supertest";
-import { addDays, setHours, setMinutes } from "date-fns";
 
 import app from "../src/app";
 import { prisma } from "../src/lib/prisma";
 
 import createUser from "./helpers/createUser";
 import createBarber from "./helpers/createBarber";
-
-function generateAppointmentDateUTC(): string {
-  let date = addDays(new Date(), 1);
-
-  const startHour = 9;
-  const endHour = 17;
-
-  const hour = Math.floor(Math.random() * (endHour - startHour)) + startHour;
-
-  date = setHours(date, hour);
-  date = setMinutes(date, 0);
-
-  return date.toISOString();
-}
+import createAppointmentDate from "./helpers/createAppointmentDate";
 
 describe("Appointment Routes", () => {
-  const testName = "Teste";
-  const testEmail = "teste3@teste.com";
-  const testPassword = "Minhasenha12#";
-
   beforeEach(async () => {
     jest.restoreAllMocks();
   });
@@ -34,7 +16,7 @@ describe("Appointment Routes", () => {
     it("should return a list of user appointments", async () => {
       const { accessToken, userId } = await createUser();
       const barberId = await createBarber();
-      const appointmentDate = generateAppointmentDateUTC();
+      const appointmentDate = createAppointmentDate();
 
       await request(app)
         .post("/appointments")
@@ -92,7 +74,7 @@ describe("Appointment Routes", () => {
     it("should create an appointment", async () => {
       const { accessToken, userId } = await createUser();
       const barberId = await createBarber();
-      const appointmentDate = generateAppointmentDateUTC();
+      const appointmentDate = createAppointmentDate();
 
       const res = await request(app)
         .post("/appointments")
@@ -127,7 +109,7 @@ describe("Appointment Routes", () => {
     it("should return 409 when the barber already has an appointment at the same time", async () => {
       const { accessToken, userId } = await createUser();
       const barberId = await createBarber();
-      const appointmentDate = generateAppointmentDateUTC();
+      const appointmentDate = createAppointmentDate();
 
       await request(app)
         .post("/appointments")
@@ -154,7 +136,7 @@ describe("Appointment Routes", () => {
     it("should return 404 if userId does not exist", async () => {
       const { accessToken } = await createUser();
       const barberId = await createBarber();
-      const appointmentDate = generateAppointmentDateUTC();
+      const appointmentDate = createAppointmentDate();
 
       const res = await request(app)
         .post("/appointments")
@@ -171,7 +153,7 @@ describe("Appointment Routes", () => {
 
     it("should return 404 if barberId does not exist", async () => {
       const { accessToken, userId } = await createUser();
-      const appointmentDate = generateAppointmentDateUTC();
+      const appointmentDate = createAppointmentDate();
 
       const res = await request(app)
         .post("/appointments")
@@ -188,7 +170,7 @@ describe("Appointment Routes", () => {
 
     it("should return 400 when userId is invalid", async () => {
       const { accessToken } = await createUser();
-      const appointmentDate = generateAppointmentDateUTC();
+      const appointmentDate = createAppointmentDate();
 
       const res = await request(app)
         .post("/appointments")
@@ -205,7 +187,7 @@ describe("Appointment Routes", () => {
 
     it("should return 400 when barberId is invalid", async () => {
       const { accessToken, userId } = await createUser();
-      const appointmentDate = generateAppointmentDateUTC();
+      const appointmentDate = createAppointmentDate();
 
       const res = await request(app)
         .post("/appointments")
@@ -223,7 +205,7 @@ describe("Appointment Routes", () => {
     it("should return 400 when date is invalid", async () => {
       const { accessToken, userId } = await createUser();
       const barberId = await createBarber();
-      const appointmentDate = generateAppointmentDateUTC();
+      const appointmentDate = createAppointmentDate();
 
       const res = await request(app)
         .post("/appointments")
@@ -275,7 +257,7 @@ describe("Appointment Routes", () => {
     it("should return a user's appointment", async () => {
       const { accessToken, userId } = await createUser();
       const barberId = await createBarber();
-      const appointmentDate = generateAppointmentDateUTC();
+      const appointmentDate = createAppointmentDate();
 
       await request(app)
         .post("/appointments")
@@ -353,7 +335,7 @@ describe("Appointment Routes", () => {
 
       const otherUserToken = response.body.accessToken;
       const otherUserId = userRequest!.id;
-      const appointmentDate = generateAppointmentDateUTC();
+      const appointmentDate = createAppointmentDate();
 
       await request(app)
         .post("/appointments")
@@ -382,7 +364,7 @@ describe("Appointment Routes", () => {
     it("should return 401 if no token is provided", async () => {
       const { accessToken, userId } = await createUser();
       const barberId = await createBarber();
-      const appointmentDate = generateAppointmentDateUTC();
+      const appointmentDate = createAppointmentDate();
 
       await request(app)
         .post("/appointments")
@@ -407,7 +389,7 @@ describe("Appointment Routes", () => {
     it("should return 403 if token is invalid or expired", async () => {
       const { accessToken, userId } = await createUser();
       const barberId = await createBarber();
-      const appointmentDate = generateAppointmentDateUTC();
+      const appointmentDate = createAppointmentDate();
 
       await request(app)
         .post("/appointments")
@@ -437,7 +419,7 @@ describe("Appointment Routes", () => {
     it("should cancel an appointment", async () => {
       const { accessToken, userId } = await createUser();
       const barberId = await createBarber();
-      const appointmentDate = generateAppointmentDateUTC();
+      const appointmentDate = createAppointmentDate();
 
       await request(app)
         .post("/appointments")
@@ -497,7 +479,7 @@ describe("Appointment Routes", () => {
 
       const otherUserToken = response.body.accessToken;
       const otherUserId = userRequest!.id;
-      const appointmentDate = generateAppointmentDateUTC();
+      const appointmentDate = createAppointmentDate();
 
       await request(app)
         .post("/appointments")
@@ -549,7 +531,7 @@ describe("Appointment Routes", () => {
     it("should return 400 when trying to cancel an appointment that is not scheduled", async () => {
       const { accessToken, userId } = await createUser();
       const barberId = await createBarber();
-      const appointmentDate = generateAppointmentDateUTC();
+      const appointmentDate = createAppointmentDate();
 
       const appointmentRequest = await prisma.appointment.create({
         data: {
@@ -573,7 +555,7 @@ describe("Appointment Routes", () => {
     it("should return 401 if no token is provided", async () => {
       const { accessToken, userId } = await createUser();
       const barberId = await createBarber();
-      const appointmentDate = generateAppointmentDateUTC();
+      const appointmentDate = createAppointmentDate();
 
       await request(app)
         .post("/appointments")
@@ -598,7 +580,7 @@ describe("Appointment Routes", () => {
     it("should return 403 if token is invalid or expired", async () => {
       const { accessToken, userId } = await createUser();
       const barberId = await createBarber();
-      const appointmentDate = generateAppointmentDateUTC();
+      const appointmentDate = createAppointmentDate();
 
       await request(app)
         .post("/appointments")
