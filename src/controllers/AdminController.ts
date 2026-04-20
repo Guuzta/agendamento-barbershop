@@ -4,9 +4,10 @@ import {
   Appointment,
   GetAppointmentQuery,
   GetBarberParams,
-  UpdateBarberBody,
   RegisterBarberBody,
 } from "../types/admin";
+
+import { UpdateBarberBody } from "../schemas/updateBarberSchema";
 
 import { Barber } from "../types/admin";
 import { GenericMessage } from "../types/types";
@@ -70,7 +71,7 @@ class AdminController {
   }
 
   async updateBarber(
-    req: AuthenticatedRequest<GetBarberParams, {}, UpdateBarberBody>,
+    req: AuthenticatedRequest<{ id: string }, {}, UpdateBarberBody>,
     res: Response<GenericMessage>,
     next: NextFunction,
   ) {
