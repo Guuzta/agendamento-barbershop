@@ -1,3 +1,5 @@
+import { format } from "date-fns";
+
 import { prisma } from "../lib/prisma";
 
 import { Appointment } from "../types/appointment";
@@ -7,10 +9,20 @@ import { AppointmentBody } from "../schemas/appointmentSchema";
 
 import isWithinWorkingHours from "../utils/AppointmentTimeValidator";
 
+import { cache } from "../infra/cache/cacheProvider";
+
 import AppError from "../utils/AppError";
 
 class AppointmentService {
   async listUserAppointments(userId: number): Promise<Appointment[]> {
+    const CACHE_KEY = `userAppointments:${userId}`;
+
+    const cached = await cache.get(CACHE_KEY);
+
+    if (cached) {
+      return cached;
+    }
+
     const user = await prisma.user.findUnique({ where: { id: userId } });
 
     if (!user) {
@@ -21,6 +33,8 @@ class AppointmentService {
       where: { userId },
     });
 
+    await cache.set(CACHE_KEY, appointments, 60);
+
     return appointments;
   }
 
@@ -29,6 +43,7 @@ class AppointmentService {
   ): Promise<GenericMessage> {
     const now = new Date();
     const requestedDate = new Date(newAppointment.date);
+    const formattedDate = format(newAppointment.date, "dd-MM-yyyy");
 
     if (requestedDate < now) {
       throw new AppError("Cannot schedule in the past", 400);
@@ -73,6 +88,9 @@ class AppointmentService {
       data: newAppointment,
     });
 
+    await cache.del(`userAppointments:${newAppointment.userId}`);
+    await cache.del(`availability:${newAppointment.barberId}:${formattedDate}`);
+
     return {
       message: "Appointment created successfully",
     };
@@ -82,6 +100,14 @@ class AppointmentService {
     userId: number,
     appointmentId: number,
   ): Promise<Appointment> {
+    const CACHE_KEY = `userAppointment:${userId}:${appointmentId}`;
+
+    const cached = await cache.get(CACHE_KEY);
+
+    if (cached) {
+      return cached;
+    }
+
     const appointment = await prisma.appointment.findUnique({
       where: { id: appointmentId },
     });
@@ -96,6 +122,8 @@ class AppointmentService {
         403,
       );
     }
+
+    await cache.set(CACHE_KEY, appointment, 60);
 
     return appointment;
   }
@@ -140,6 +168,12 @@ class AppointmentService {
       where: { id: appointmentId },
       data: { status: "canceled" },
     });
+
+    const formattedDate = format(appointment.date, "dd-MM-yyyy");
+
+    await cache.del(`userAppointments:${userId}`);
+    await cache.del(`userAppointment:${userId}:${appointmentId}`);
+    await cache.del(`availability:${appointment.barberId}:${formattedDate}`);
 
     return {
       message: "Appointment canceled successfully",

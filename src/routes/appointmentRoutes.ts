@@ -11,7 +11,11 @@ import paramsSchema from "../schemas/paramsSchema";
 
 const router = Router();
 
-router.get("/", requireAuth, AppointmentController.listUserAppointments);
+router.get(
+  "/", 
+  requireAuth, 
+  AppointmentController.listUserAppointments
+);
 
 router.post(
   "/",
@@ -27,6 +31,11 @@ router.get(
   AppointmentController.getUserAppointment,
 );
 
-router.delete("/:id", requireAuth, AppointmentController.cancelAppointment);
+router.delete(
+  "/:id",
+  requireAuth,
+  validateParams(paramsSchema),
+  AppointmentController.cancelAppointment,
+);
 
 export default router;
