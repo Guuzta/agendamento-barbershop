@@ -1,5 +1,13 @@
+import { cache } from "../infra/cache/cacheProvider";
 import { prisma } from "../lib/prisma";
-import { startOfDay, endOfDay, isAfter, parseISO, addHours } from "date-fns";
+import {
+  startOfDay,
+  endOfDay,
+  isAfter,
+  parseISO,
+  addHours,
+  format,
+} from "date-fns";
 
 import { Barber } from "../types/barber";
 
@@ -7,6 +15,14 @@ import AppError from "../utils/AppError";
 
 class BarberService {
   async listAll(): Promise<Barber[]> {
+    const CACHE_KEY = "barbers:listAll";
+
+    const cached = await cache.get(CACHE_KEY);
+
+    if (cached) {
+      return cached;
+    }
+
     const barbers = await prisma.barber.findMany({
       where: { isActive: true },
       select: {
@@ -15,10 +31,20 @@ class BarberService {
       },
     });
 
+    await cache.set(CACHE_KEY, barbers, 60);
+
     return barbers;
   }
 
   async getBarberById(id: number): Promise<Barber> {
+    const CACHE_KEY = `barbers:${id}`;
+
+    const cached = await cache.get(CACHE_KEY);
+
+    if (cached) {
+      return cached;
+    }
+
     const barber = await prisma.barber.findUnique({
       where: {
         id,
@@ -34,6 +60,8 @@ class BarberService {
       throw new AppError("Barber not found", 404);
     }
 
+    await cache.set(CACHE_KEY, barber, 60);
+
     return barber;
   }
 
@@ -44,6 +72,15 @@ class BarberService {
     const date = parseISO(dateString);
     const startDay = startOfDay(date);
     const endDay = endOfDay(date);
+
+    const formattedDate = format(date, "dd-MM-yyyy");
+    const CACHE_KEY = `availability:${id}:${formattedDate}`;
+
+    const cached = await cache.get(CACHE_KEY);
+
+    if (cached) {
+      return cached;
+    }
 
     const barberExist = await prisma.barber.findUnique({
       where: { id, isActive: true },
@@ -80,6 +117,8 @@ class BarberService {
         hours.push(`${hour.toString().padStart(2, "0")}:00`);
       }
     }
+
+    await cache.set(CACHE_KEY, hours, 60);
 
     return hours;
   }

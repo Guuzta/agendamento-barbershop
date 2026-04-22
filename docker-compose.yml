@@ -11,6 +11,21 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
+  redis:
+    image: redis:7
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
 
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name:  redisinsight
+    restart: always
+    ports:
+      - "5540:5540"
+    volumes:
+      - redisinsight-data:/db 
 volumes:
   postgres_data:
+  redisinsight-data:
