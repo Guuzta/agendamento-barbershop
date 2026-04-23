@@ -89,6 +89,7 @@ class AppointmentService {
     });
 
     await cache.del(`userAppointments:${newAppointment.userId}`);
+    await cache.del("admin:appointments:list:*");
     await cache.del(`availability:${newAppointment.barberId}:${formattedDate}`);
 
     return {
@@ -173,6 +174,7 @@ class AppointmentService {
 
     await cache.del(`userAppointments:${userId}`);
     await cache.del(`userAppointment:${userId}:${appointmentId}`);
+    await cache.del("admin:appointments:list:*");
     await cache.del(`availability:${appointment.barberId}:${formattedDate}`);
 
     return {
