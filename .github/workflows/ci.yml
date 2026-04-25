@@ -25,6 +25,9 @@ jobs:
       - name: Rodar lint
         run: npm run lint
 
+      - name: Set test env
+        run: echo "DATABASE_URL=${{ secrets.DATABASE_URL_TEST }}" >> .env.test
+
       - name: Rodar testes
         run: npm test
 
