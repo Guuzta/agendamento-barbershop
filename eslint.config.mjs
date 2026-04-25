@@ -11,6 +11,7 @@ export default defineConfig(
       "tests",
       "jest**",
       "src/infra/helpers/buildCacheKey.ts",
+      "prisma.config.ts",
     ],
   },
 
