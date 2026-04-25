@@ -11,6 +11,18 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
+  db_test:
+    image: postgres
+    container_name: myapp_db_test
+    restart: always
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: test
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql
   redis:
     image: redis:7
     container_name: redis
@@ -28,4 +40,5 @@ services:
       - redisinsight-data:/db 
 volumes:
   postgres_data:
+  postgres_test_data:
   redisinsight-data:

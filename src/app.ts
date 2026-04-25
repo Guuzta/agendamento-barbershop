@@ -1,9 +1,5 @@
+import "dotenv/config";
 import express from "express";
-import dotenv from "dotenv";
-
-dotenv.config();
-
-import "./config/env";
 
 import healthRoutes from "./routes/healthRoutes";
 import userRoutes from "./routes/userRoutes";

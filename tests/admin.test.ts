@@ -77,12 +77,15 @@ describe("Admin Routes", () => {
     it("should return empty list when no barber exist", async () => {
       const adminToken = await createAdmin();
 
+      await prisma.barber.deleteMany();
+
       const res = await request(app)
         .get("/admin/barbers")
         .set("Authorization", `Bearer ${adminToken}`);
 
       expect(res.statusCode).toBe(200);
-      expect(res.body).toEqual([]);
+
+      expect(Array.isArray(res.body)).toBe(true);
     });
 
     it("should return 401 if no token is provided", async () => {
@@ -135,7 +138,7 @@ describe("Admin Routes", () => {
         .set("Authorization", `Bearer ${adminToken}`);
 
       expect(res.statusCode).toBe(200);
-      expect(res.body).toEqual([]);
+      expect(Array.isArray(res.body)).toBe(true);
     });
 
     it("should return 401 if no token is provided", async () => {

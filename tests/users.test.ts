@@ -9,10 +9,6 @@ describe("Users Routes", () => {
   const testEmail = "teste1@teste.com";
   const testPassword = "Minhasenha12#";
 
-  beforeEach(async () => {
-    await prisma.user.deleteMany({ where: { email: testEmail } });
-  });
-
   describe("POST /users/register", () => {
     it("should register a user", async () => {
       const res = await request(app).post("/users/register").send({
