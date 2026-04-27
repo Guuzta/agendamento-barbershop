@@ -53,6 +53,14 @@ jobs:
       - name: Rodar lint
         run: npm run lint
 
+      - name: Esperar Postgres ficar pronto
+        run: |
+          for i in {1..10}; do
+            pg_isready -h postgres -U test && break
+            echo "Aguardando Postgres..."
+            sleep 3
+          done
+
       - name: Rodar testes
         run: npm test
 
