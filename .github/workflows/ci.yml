@@ -33,7 +33,7 @@ jobs:
       TOKEN_SECRET: ${{ secrets.TOKEN_SECRET }}
       TOKEN_EXPIRATION: ${{ secrets.TOKEN_EXPIRATION }}
       ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-
+      NODE_ENV: test
 
     steps:
       - name: Checkout do código
