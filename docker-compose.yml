@@ -32,12 +32,12 @@ services:
 
   redisinsight:
     image: redis/redisinsight:latest
-    container_name:  redisinsight
+    container_name: redisinsight
     restart: always
     ports:
       - "5540:5540"
     volumes:
-      - redisinsight-data:/db 
+      - redisinsight-data:/db
 volumes:
   postgres_data:
   postgres_test_data:
