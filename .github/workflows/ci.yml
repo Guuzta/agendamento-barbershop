@@ -24,7 +24,10 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
-
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL_TEST }}
       TOKEN_SECRET: ${{ secrets.TOKEN_SECRET }}
